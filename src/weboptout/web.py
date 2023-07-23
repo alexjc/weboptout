@@ -1,6 +1,6 @@
 ## Copyright © 2023, Alex J. Champandard.  Licensed under MIT; see LICENSE! ⚘
 
-from .types import rsv, Status
+from .types import rsv, Reservation, Status
 from .client import ClientSession
 from .utils import allow_sync_calls
 from .http import search_tos_for_domain
@@ -11,7 +11,7 @@ __all__ = ["check_domain_reservation"]
 
 
 @allow_sync_calls
-async def check_domain_reservation(domain):
+async def check_domain_reservation(domain: str) -> Reservation:
     assert not domain.startswith('http://')
 
     async with ClientSession() as client:
@@ -25,4 +25,5 @@ async def check_domain_reservation(domain):
 
             return rsv.YES(summary=client.log_records[-1][2]['highlight'], records=client.log_records)
 
-    return rsv.MAYBE(summary="", records=client.log_records)
+    # This happens when none of the domains can be looked up.
+    return rsv.ERROR(summary="", records=client.log_records)
