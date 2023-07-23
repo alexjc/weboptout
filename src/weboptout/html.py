@@ -85,17 +85,18 @@ def _extract_paragraphs(soup):
     """
     re_cleanup = re.compile("(\s+|\n|\t)")
 
-    for para in soup.find_all(["p", "li", "ol", "ul"]):
+    for para in soup.find_all(["p", "li", "ol", "ul", "span"]):
         if para.find_parent("a") or para.find_parent(["header", "footer"]):
+            continue
+        if para.name == "span" and para.find_parent('p'):
             continue
         if para.name in ("ol", "ul") and len(para.find_all()) > 0:
             continue
+
         children = [
-            p
-            for p in para.contents
+            p for p in para.contents
             if not isinstance(p, str) or p.strip("\t\n\r ") != ""
         ]
-
         if len(children) == 1 and children[0].name == "a":
             continue
 
