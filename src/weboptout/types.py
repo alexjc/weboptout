@@ -11,7 +11,8 @@ class Status(enum.Enum):
 
     SUCCESS = 1
     FAILURE = 0
-    ABORT = -1
+    RETRY = -1
+    ABORT = -2
 
 
 class Reservation:
@@ -48,3 +49,4 @@ class rsv:
     YES = Reservation(2)
     MAYBE = Reservation(1)
     NO = Reservation(0)
+    ERROR = Reservation(-1)
