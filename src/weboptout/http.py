@@ -16,7 +16,10 @@ __all__ = ["search_tos_for_domain"]
 
 
 def _log_cache_hit(client, url, /, filename, result):
-    client.log(Status.SUCCESS, f"Loaded data for {url} from {filename}")
+    if result[-1] != "":
+        client.log(Status.SUCCESS, f"Loaded data request for {url} from {filename}")
+    else:
+        client.log(Status.FAILURE, f"Loaded failed request for {url} from {filename}")
 
 
 @cache_to_directory("./cache/www", key="url", filter=_log_cache_hit)
@@ -27,6 +30,15 @@ async def _fetch_from_cache_or_network(client, url: str) -> tuple:
                 client.log(
                     Status.FAILURE,
                     f"Response contains binary content where text/* was expected "
+                    f"from {url}",
+                    headers=dict(response.headers),
+                )
+                return str(response.url), dict(response.headers), ""
+
+            if "application/xml" in response.headers.get("Content-Type", ""):
+                client.log(
+                    Status.FAILURE,
+                    f"Response contains XML content where text/* was expected "
                     f"from {url}",
                     headers=dict(response.headers),
                 )
@@ -84,8 +96,9 @@ async def _find_tos_links_from_html(client, url, html: str) -> list[str]:
         l
         for l in soup.find_all("a")
         if l.get("href") is not None
-        and not (href := l.get("href")).startswith("#")
-        and not href.lower().startswith("javascript:")
+        and not (href := l.get("href")).lower().startswith("javascript:")
+        and not any(href.startswith(k) for k in "#?")
+        and not (l.get_text().lower in ["refresh", "reload"])
     ]
     if len(all_links) == 0 or any(
         k in html for k in ("turn on javascript", "enable-javascript.com")
