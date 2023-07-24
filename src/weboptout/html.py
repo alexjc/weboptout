@@ -60,7 +60,9 @@ def check_tos_reservation(client, url: str, html: str) -> Status:
             f"Too little information extracted, only {size:,} bytes from "
             f"the ToS page at {url}.",
         )
-        return Status.FAILURE
+
+        # Suggest fetching page again via HTTP with Selenium.
+        return Status.RETRY
 
     else:
         legal_words = len(RE_LEGAL_WORDS.findall(text))

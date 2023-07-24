@@ -15,11 +15,16 @@ async def check_domain_reservation(domain: str) -> Reservation:
     assert not domain.startswith('http://')
 
     async with ClientSession() as client:
-        async for url, tos in search_tos_for_domain(client, domain):
-
+        async for url, tos, options in search_tos_for_domain(client, domain):
             status = check_tos_reservation(client, url, tos)
+
+            if status == Status.RETRY:
+                options.retry = True
+                continue
+
             if status == Status.ABORT:
-                break
+                return rsv.MAYBE(summary="", records=client.log_records)
+
             if status == Status.FAILURE:
                 continue
 
