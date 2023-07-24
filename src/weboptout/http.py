@@ -3,13 +3,15 @@
 import asyncio
 import aiohttp
 import itertools
+from dataclasses import dataclass
 from urllib.parse import urljoin
 
 from bs4 import BeautifulSoup
 
-from .utils import cache_to_directory
 from .types import Status
 from .config import RE_HREF_TOS, RE_TEXT_TOS
+from .utils import cache_to_directory, limit_concurrency
+from .client import instantiate_webdriver
 
 
 __all__ = ["search_tos_for_domain"]
@@ -151,6 +153,35 @@ async def _find_tos_links_from_html(client, url, html: str) -> list[str]:
     ]
 
 
+
+def _reject_if_header_missing(url, headers, /, filename, result):
+    return "User-Agent" not in headers
+    
+
+@cache_to_directory("./cache/www", key="url", filter=_reject_if_header_missing)
+@limit_concurrency(value=1)
+async def _fetch_from_browser_then_cache_result(url, headers):
+    webdriver = instantiate_webdriver()
+    webdriver.get(url)
+
+    def page_is_loading():            
+        x = webdriver.execute_script("return document.readyState")
+        return x == "complete"
+
+    while not page_is_loading():
+        await asyncio.sleep(0.01)
+    await asyncio.sleep(1.0)
+
+    html = webdriver.execute_script("return document.documentElement.outerHTML")
+    headers["User-Agent"] = "WebOptOut/Firefox"
+    return url, headers, html
+
+
+@dataclass
+class RequestOptions:
+    retry: bool = False
+
+
 async def search_tos_for_domain(client, domain: str) -> str:
     assert not domain.startswith("http")
 
@@ -174,7 +205,7 @@ async def search_tos_for_domain(client, domain: str) -> str:
         url = links.pop(0)
         visited.add(url)
 
-        url, _, html = await _fetch_from_cache_or_network(client, url)
+        url, headers, html = await _fetch_from_cache_or_network(client, url)
         if html is None:
             continue
 
@@ -182,7 +213,17 @@ async def search_tos_for_domain(client, domain: str) -> str:
             Status.SUCCESS,
             f"Retrieved Terms Of Service for {url} with {len(html):,} bytes of text.",
         )
-        yield url, html
+
+        options = RequestOptions()
+        yield url, html, options
+
+        if options.retry:
+            url, headers, html = await _fetch_from_browser_then_cache_result(url, headers)
+            client.log(
+                Status.SUCCESS,
+                f"Browsed for Terms Of Service again with Selenium and got {len(html):,} bytes of text.",
+            )
+            yield url, html, options
 
         url, further_links = await _find_tos_links_from_html(client, url, html)
         links.extend(l for l in further_links if l not in links and l not in visited)
