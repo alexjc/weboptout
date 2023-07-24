@@ -2,8 +2,12 @@
 
 import atexit
 import aiohttp
+import collections
 
 from . import __version__
+
+
+LogRecord = collections.namedtuple("LogRecord", ["level", "message", "extras"])
 
 
 class ClientSession(aiohttp.ClientSession):
@@ -20,7 +24,7 @@ class ClientSession(aiohttp.ClientSession):
         self.log_records = []
 
     def log(self, level, message, **kwargs):
-        self.log_records.append((level, message, kwargs))
+        self.log_records.append(LogRecord(level, message, kwargs))
 
 
 def instantiate_webdriver(__singleton__ = []):

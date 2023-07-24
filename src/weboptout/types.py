@@ -26,9 +26,10 @@ class Reservation:
     create Reservations derived from that default.
     """
 
-    def __init__(self, id: int, summary: str = None, records: list = None):
+    def __init__(self, id: int, summary: str = None, url: str = None, records: list = None):
         self._id = id
         self.summary = summary
+        self.url = url
         self.records = records or []
 
     def __eq__(self, id: int):
@@ -37,8 +38,8 @@ class Reservation:
     def __repr__(self):
         return f'<weboptout.Reservation id={self._id} summary="{self.summary}">'
 
-    def __call__(self, /, summary: str, records: list = None):
-        return Reservation(self._id, summary, records)
+    def __call__(self, /, summary: str, url: str = None, records: list = None):
+        return Reservation(self._id, summary, url, records)
 
 
 class rsv:
