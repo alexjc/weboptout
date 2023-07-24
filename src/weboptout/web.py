@@ -23,12 +23,16 @@ async def check_domain_reservation(domain: str) -> Reservation:
                 continue
 
             if status == Status.ABORT:
-                return rsv.MAYBE(summary="", records=client.log_records)
+                return rsv.MAYBE(summary=None, url=url, records=client.log_records)
 
             if status == Status.FAILURE:
                 continue
 
-            return rsv.YES(summary=client.log_records[-1][2]['highlight'], records=client.log_records)
+            return rsv.YES(
+                summary=client.log_records[-1][2]["highlight"],
+                url=url,
+                records=client.log_records,
+            )
 
     # This happens when none of the domains can be looked up.
-    return rsv.ERROR(summary="", records=client.log_records)
+    return rsv.ERROR(summary=None, records=client.log_records)
