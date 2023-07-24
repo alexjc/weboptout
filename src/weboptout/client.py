@@ -1,5 +1,6 @@
 ## Copyright © 2023, Alex J. Champandard.  Licensed under MIT; see LICENSE! ⚘
 
+import atexit
 import aiohttp
 
 from . import __version__
@@ -20,3 +21,21 @@ class ClientSession(aiohttp.ClientSession):
 
     def log(self, level, message, **kwargs):
         self.log_records.append((level, message, kwargs))
+
+
+def instantiate_webdriver(__singleton__ = []):
+    """
+    Launch a single instance of Firefox in the background and close it before exiting Python.
+    """
+    if len(__singleton__) == 1:
+        return __singleton__[0]
+
+    from selenium import webdriver
+    options = webdriver.FirefoxOptions()
+    options.headless = True
+    
+    wdf = webdriver.Firefox(options=options)
+    atexit.register(wdf.quit)
+
+    __singleton__.append(wdf)
+    return wdf
