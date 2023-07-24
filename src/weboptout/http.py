@@ -161,8 +161,13 @@ def _reject_if_header_missing(url, headers, /, filename, result):
 @cache_to_directory("./cache/www", key="url", filter=_reject_if_header_missing)
 @limit_concurrency(value=1)
 async def _fetch_from_browser_then_cache_result(url, headers):
-    webdriver = instantiate_webdriver()
-    webdriver.get(url)
+    try:
+        webdriver = instantiate_webdriver()
+        webdriver.get(url)
+    except Exception as exc: # selenium.common.exceptions.TimeoutException
+        if "Message: Navigation timed out after" not in str(exc):
+            raise
+        return url, headers, ""
 
     def page_is_loading():            
         x = webdriver.execute_script("return document.readyState")
@@ -183,7 +188,7 @@ class RequestOptions:
 
 
 async def search_tos_for_domain(client, domain: str) -> str:
-    assert not domain.startswith("http")
+    assert not any(domain.startswith(k) for k in ("https://", "http://"))
 
     # Step 1) find the right domain from the domain.
     while domain.count(".") > 0:
