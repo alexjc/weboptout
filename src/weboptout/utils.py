@@ -28,13 +28,27 @@ def allow_sync_calls(fn):
     return _wrapper
 
 
+def limit_concurrency(value: int):
+    """
+    Decorator to prevent an async function from being called more than N times.
+    """
+    semaphore = asyncio.Semaphore(value)
+    def _decorator(fn):
+        async def _wrapper(*args, **kwargs):
+            async with semaphore:
+                return await fn(*args, **kwargs)
+        _wrapper.__wrapped__ = fn
+        return _wrapper
+    return _decorator
+
+
 def cache_to_directory(directory, /, key: str, filter: callable = None):
     """
     Decorator to cache results of a function to individual pickle files on disk.
     """
     os.makedirs(directory, exist_ok=True)
 
-    def _decorator(fn):
+    def _decorator(fn):        
         arg_names = list(inspect.signature(fn).parameters.keys())
         arg_idx = arg_names.index(key)
 
@@ -52,6 +66,11 @@ def cache_to_directory(directory, /, key: str, filter: callable = None):
             result = await fn(*args, **kwargs)
             pickle.dump(result, open(filename, 'wb'))
             return result
+
+        _wrapper.__wrapped__ = fn
+        return _wrapper
+    return _decorator
+
 
         return _wrapper
     return _decorator
