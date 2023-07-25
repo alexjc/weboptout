@@ -1,23 +1,18 @@
-# Python Release
-#
-# Automatically build and publish the package from the supported Python 3.x version.
-#
-
-name: release
-
+name: Publish Release
 on:
-  push:
-    tags:
-      - 'v*.*.*'
-      - 'v*.*'
+  release:
+    types: [published]
 
 jobs:
-  release:
+  build:
+    permissions:
+      contents: write
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest]
         python: [3.9]
+
     name: Python ${{ matrix.python }} ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
@@ -25,6 +20,15 @@ jobs:
         id: tag
         run: |
           echo ::set-output name=version::${GITHUB_REF#refs/tags/v}
+      - uses: robinraju/release-downloader@v1.8
+        with:
+          tag: v${{ steps.tag.outputs.version }}
+          fileName: tos.jsonl.gz
+      - name: Extract Databases
+        run: |
+          mkdir data
+          zcat tos.jsonl.gz > data/tos.jsonl
+          rm tos.jsonl.gz
       - name: Set Version
         run: |
           sed -ri 's/version = "(.*)"/version = "${{ steps.tag.outputs.version }}"/' pyproject.toml
@@ -35,8 +39,8 @@ jobs:
       - name: Create Package
         run: |
           poetry build
-      - name: Publish Package
-        env:
-          POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_TOKEN }}
-        run: |
-          poetry publish -n
+      - name: Upload Release Asset
+        uses: shogo82148/actions-upload-release-asset@v1
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: dist/weboptout-*
