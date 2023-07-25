@@ -2,9 +2,12 @@
 __pycache__/
 *.py[cod]
 *.*~
+.DS_Store
 
 # Tests / results / generated.
 cache/
+data/
+*.log
 
 # Distribution / packaging / build.
 htmlcov/
