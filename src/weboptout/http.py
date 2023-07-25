@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 
 from .types import Status
 from .config import RE_HREF_TOS, RE_TEXT_TOS
-from .utils import cache_to_directory, limit_concurrency
+from .utils import cache_to_directory, retrieve_from_database, limit_concurrency
 from .client import instantiate_webdriver
 
 
@@ -80,6 +80,7 @@ async def _fetch_from_cache_or_network(client, url: str) -> tuple:
     return url, {}, ""
 
 
+@retrieve_from_database("data/tos.jsonl", key="url")
 async def _find_tos_links_from_url(client, url: str) -> list[str]:
     url, _, html = await _fetch_from_cache_or_network(client, url)
     if html == "":
@@ -210,7 +211,7 @@ async def search_tos_for_domain(client, domain: str) -> str:
         url = links.pop(0)
         visited.add(url)
 
-        url, headers, html = await _fetch_from_cache_or_network(client, url)
+        new_url, headers, html = await _fetch_from_cache_or_network(client, url)
         if html is None:
             continue
 
@@ -220,7 +221,7 @@ async def search_tos_for_domain(client, domain: str) -> str:
         )
 
         options = RequestOptions()
-        yield url, html, options
+        yield new_url, html, options
 
         if options.retry:
             url, headers, html = await _fetch_from_browser_then_cache_result(url, headers)
