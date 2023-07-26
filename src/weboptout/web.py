@@ -2,7 +2,7 @@
 
 from .types import rsv, Reservation, Status
 from .client import ClientSession
-from .utils import allow_sync_calls
+from .utils import allow_sync_calls, retrieve_result_from_cache
 from .http import search_tos_for_domain
 from .html import check_tos_reservation
 
@@ -11,8 +11,9 @@ __all__ = ["check_domain_reservation"]
 
 
 @allow_sync_calls
+@retrieve_result_from_cache("cache/rsv.pkl", key="domain")
 async def check_domain_reservation(domain: str) -> Reservation:
-    assert not domain.startswith('http://')
+    assert not any(domain.startswith(k) for k in ("https://", "http://"))
 
     async with ClientSession() as client:
         async for url, tos, options in search_tos_for_domain(client, domain):
