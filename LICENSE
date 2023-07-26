@@ -1,6 +1,10 @@
-MIT License
-
 Copyright (c) 2023, Alex J. Champandard
+
+
+Source Code Agreement
+=====================
+
+MIT License
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -9,8 +13,8 @@ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -19,3 +23,69 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+
+
+**You may use the source code under the MIT license.**
+
+Specifically, as specified in the LICENSE terms above, using this software comes without
+WARRANTIES OF NON-INFRINGEMENT, thus any and all claims of WARRANTY or INDEMNIFICATION
+for INFRINGEMENT relating to `weboptout` will be considered punishable breaches.
+Additionally, claiming REGULATORY or CONTRACTUAL compliance by virtue of using this
+software shall also be considered a breach of the LICENSE terms.  When such cases occur,
+as per the last two lines of the MIT license, the software's author(s) shall be entitled
+to claim DAMAGES, and the amount is hereby agreed to be €250,000 per violation.
+
+By using or downloading this software, you acknowledge that this legal interpretation of
+the LICENSE details and implications is compatible with the MIT license, and that you
+agree to be bound by this interpretation — including downstream users of the software to
+whom you distribute original or modified versions, including rewritten derivatives.
+
+
+
+Database Agreement
+==================
+
+Fair Dealings License
+
+**You may use the databases in packaged releases under the following terms.**
+
+1) DEFINITIONS.  You understand and acknowledge that definitions of "Analysis" and
+   "Training" are inherently different.  You understand and acknowledge that by
+   definition, analytical techniques themselves do not produce Copyrighted works instead
+   only independent facts and statistics, whereas training creates compilations and
+   collections of information derived from the Copyrighted works being processed.  You
+   understand & acknowledge that performing research activities in the "private sector"
+   does not necessarily imply the right to commercialize direct outputs of the research.
+
+2) ASSESSMENT.  You understand and acknowledge that instances of "Fair Dealing" must by
+   definition be assessed independently for each application, for each of its stages,
+   and for each group of rightsholders.  You agree not to claim broad exceptions that
+   apply to all applications, all stages, and all rightsholders as it would be
+   incompatible with the Berne Convention — which you hereby commit to respecting
+   directly regardless of your jurisdiction.  You understand and acknowledge that Fair
+   Dealing, if applicable, only provides exceptions to Reproduction rights under ©.
+
+3) RESPONSIBILITIES.  You understand & acknowledge that "Training" in machine learning
+   — and particularly for generative models — most often requires the use of protected
+   Expressions as well as private information.  You hereby agree it's your
+   responsibility to use reasonable efforts and ensure that industry-standard
+   precautions during training are taken (e.g. deduplication of training material,
+   removal of all names for privacy) and hereby accept that you are liable for this if
+   it's is not the case.
+
+4) CONSEQUENCES.  You understand and acknowledge that your artivities when using
+   protected works must not conflict with a normal exploitation of the work or
+   unreasonably prejudice the legitimate interests of the author, and that it's your
+   responsibility to ensure that is the case with rightsholders.  You understand and
+   acknowledge that you are expected to have conducted this assessment before beginning
+   your activities, and you hereby accept that the burden of proof is on you to prove
+   this when challenged.
+
+
+You may use `weboptout` without the packaged databases if you don't agree with this Fair
+Dealings License.  From the moment of first use of the databases you are bound by these
+terms and in perpetuity.  To revoke these terms retroactively, written permission is
+required from the Author(s) of `weboptout` and a license fee of €250,000.  Failure to
+comply with the terms is considered a breach, and the damages are hereby set to the price
+of the license at €250,000.
