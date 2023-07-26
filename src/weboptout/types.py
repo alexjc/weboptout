@@ -36,7 +36,7 @@ class Reservation:
         return self._id == id
 
     def __repr__(self):
-        return f'<weboptout.Reservation id={self._id} summary="{self.summary}">'
+        return f'<weboptout.Reservation id={self._id} url="{self.url}" summary="{self.summary}">'
 
     def __call__(self, /, summary: str, url: str = None, records: list = None):
         return Reservation(self._id, summary, url, records)
