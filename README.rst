@@ -3,7 +3,23 @@ Web Opt-Out
 
 A tool and library written in Python to check the Copyright information of online works and the conditions under which they can be accessed.  See the `examples` folder to get started.
 
-The source code is available in this repository and there are packaged releases available from PyPI that include verified databases.
+The source code is available in this repository and there are packaged releases available from PyPI that include verified databases. Requires Python 3.9+!
+
+Usage
+-----
+
+The library supports checking if files hosted on a domain or CDN are opted-out of Text- and Data-Mining:
+
+.. code-block:: python
+
+    from weboptout import check_domain_reservation, rsv
+
+    res = check_domain_reservation("github.com")
+    if res == rsv.YES:
+        print("Domain Opted-Out", res.url, res.summary)
+
+
+You may call the API functions like `check_domain_reservation` in both synchronous and asynchronous forms.
 
 
 Installation
@@ -12,14 +28,16 @@ Installation
 Option 1) Install from PyPI [recommended]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. bash::
+.. code-block:: bash
+
     pip install weboptout
 
 
 Option 2) Setup From Source [developers]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. bash::
+.. code-block:: bash
+
     pip install poetry
     poetry install
 
