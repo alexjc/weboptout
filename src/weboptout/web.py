@@ -17,15 +17,22 @@ async def check_domain_reservation(domain: str) -> Reservation:
 
     async with ClientSession() as client:
         async for url, tos, options in search_tos_for_domain(client, domain):
+            # No TOS found but at least the server worked.
+            if tos == "":
+                return rsv.MAYBE(summary=None, url=url, records=client.log_records)
+
             status = check_tos_reservation(client, url, tos)
 
+            # Need to fetch the content again with webdriver?
             if status == Status.RETRY:
                 options.retry = True
                 continue
 
+            # Wrong place or wrong language from website...
             if status == Status.ABORT:
                 return rsv.MAYBE(summary=None, url=url, records=client.log_records)
 
+            # Not enough text or not enough legal content.
             if status == Status.FAILURE:
                 continue
 

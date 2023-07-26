@@ -77,17 +77,18 @@ async def _fetch_from_cache_or_network(client, url: str) -> tuple:
             exception=exc,
         )
 
-    return url, {}, ""
+    return url, {}, None
 
 
 @retrieve_from_database("data/tos.jsonl", key="url")
 async def _find_tos_links_from_url(client, url: str) -> list[str]:
     url, _, html = await _fetch_from_cache_or_network(client, url)
+
+    if html is None:
+        return None, None
+
     if html == "":
-        client.log(
-            Status.FAILURE, f"Couldn't find ToS links as there's no data from {url}"
-        )
-        return url, []
+        return url, None
 
     return await _find_tos_links_from_html(client, url, html)
 
@@ -196,13 +197,19 @@ async def search_tos_for_domain(client, domain: str) -> str:
         links = []
         url, links = await _find_tos_links_from_url(client, "https://" + domain)
 
-        if len(links) == 0:
+        if url is None or len(links or []) == 0:
             domain = ".".join(domain.split(".")[1:])
             continue
         else:
             break
 
+    # No data from server, just terminate.
+    if links is None:
+        return
+
+    # Content received but no links.
     if len(links) == 0:
+        yield url, "", {}
         return
 
     # Step 2) find the right page on that domain.
