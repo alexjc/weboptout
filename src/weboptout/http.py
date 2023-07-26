@@ -24,7 +24,7 @@ def _log_cache_hit(client, url, /, filename, result):
         client.log(Status.FAILURE, f"Loaded failed request for {url} from {filename}")
 
 
-@cache_to_directory("./cache/www", key="url", filter=_log_cache_hit)
+@cache_to_directory("cache/www", key="url", filter=_log_cache_hit)
 async def _fetch_from_cache_or_network(client, url: str) -> tuple:
     try:
         async with client.get(url) as response:
@@ -159,7 +159,7 @@ def _reject_if_header_missing(url, headers, /, filename, result):
     return "User-Agent" not in headers
     
 
-@cache_to_directory("./cache/www", key="url", filter=_reject_if_header_missing)
+@cache_to_directory("cache/www", key="url", filter=_reject_if_header_missing)
 @limit_concurrency(value=1)
 async def _fetch_from_browser_then_cache_result(url, headers):
     try:
