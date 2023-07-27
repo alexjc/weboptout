@@ -19,11 +19,22 @@ terms|legal|conditions|guidelines\
 RE_TDM_CONCEPTS = [
     re.compile(p, re.I) for p in [
         "(scrap(e|er|ing)|data[\s-]min(e|ing))",
-        "(spider|robot|crawl(ing|er)?|index(ing|er))",
+        "(spider|robot|crawl(ing|er)?)",
+        "(index(ing|er))",
         "automated (software|tool|mean|system|way|device)s?",
         "(image library|machine learning|deep leaning|populate a database)",
         "(extract|compil(e|at)?|collect)(ing|ion)? (data|content|material|information)",
         "harvest(ing|er)?",
+    ]
+]
+
+# Parts of words that indicate non-commercial or personal use only.
+RE_NFP_CONCEPTS = [
+    re.compile(p, re.I) for p in [
+        "(non-commercial|non commercial) (use|purpose)",
+        "not\s*(meant|intended)?\s*for commercial (use|usage)",
+        "not-for-profit",
+        "(personal|private) (use|purpose)",
     ]
 ]
 
