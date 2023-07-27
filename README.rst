@@ -14,9 +14,9 @@ The library supports checking if files hosted on a domain or CDN are opted-out o
 
     from weboptout import check_domain_reservation, rsv
 
-    res = check_domain_reservation("github.com")
+    res = check_domain_reservation("pinterest.com")
     if res == rsv.YES:
-        print("Domain Opted-Out", res.url, res.summary)
+        print(f"Domain Opted-Out\n\t{res.url}\n\t❝{res.summary}〞")
 
 
 You may call the API functions like `check_domain_reservation` in both synchronous and asynchronous forms.
@@ -47,7 +47,7 @@ Terms & Conditions
 
 This project has dual licensing, both of which you must respect if you use packaged releases:
 
-* *The source code in this repository is covered by the MIT license.*
-* *The database in packaged releases is under a Fair Dealings Licence.*
+* **The source code in this repository is covered by the MIT license.**
+* **The database in packaged releases is under a Fair Dealings Licence.**
 
 Please note that this project does not provide WARRANTY, and attempts to claim WARRANTY for NON-INFRINGEMENT in the context of regulatory or contractual compliance will be considered a punishable breach of the LICENSE terms.  DAMAGES are set at €250,000.
