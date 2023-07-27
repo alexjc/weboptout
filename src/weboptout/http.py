@@ -37,10 +37,10 @@ async def _fetch_from_cache_or_network(client, url: str) -> tuple:
                 )
                 return str(response.url), dict(response.headers), ""
 
-            if "application/xml" in response.headers.get("Content-Type", ""):
+            if "application/" in response.headers.get("Content-Type", ""):
                 client.log(
                     Status.FAILURE,
-                    f"Response contains XML content where text/* was expected "
+                    f"Response contains XML or PDF content where text/* was expected "
                     f"from {url}",
                     headers=dict(response.headers),
                 )
@@ -147,13 +147,15 @@ async def _find_tos_links_from_html(client, url, html: str) -> list[str]:
         f"text matches.",
     )
 
+    def valid_link(url):
+        return not any(k in url for k in ["login", "privacy", "signup", "user/"])
+
     return url, [
         urljoin(url, l.get("href"))
         for p in itertools.zip_longest(match_links, match_texts)
         for l in p
-        if l is not None
+        if (l is not None and valid_link(l.get("href")))
     ]
-
 
 
 def _reject_if_header_missing(url, headers, /, filename, result):
