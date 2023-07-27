@@ -20,8 +20,7 @@ RE_TDM_CONCEPTS = [
     re.compile(p, re.I) for p in [
         "(scrap(e|er|ing)|data[\s-]min(e|ing))",
         "(spider|robot|crawl(ing|er)?)",
-        "(index(ing|er))",
-        "automated (software|tool|mean|system|way|device)s?",
+        "(automated|automatic) (software|tool|mean|system|way|device)s?",
         "(image library|machine learning|deep leaning|populate a database)",
         "(extract|compil(e|at)?|collect)(ing|ion)? (data|content|material|information)",
         "harvest(ing|er)?",
