@@ -51,3 +51,7 @@ class rsv:
     MAYBE = Reservation(1)
     NO = Reservation(0)
     ERROR = Reservation(-1)
+
+    @staticmethod
+    def get_name(res):
+        return ['ERROR', 'NO', 'MAYBE', 'YES'][res._id+1]
