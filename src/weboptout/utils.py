@@ -44,10 +44,13 @@ def limit_concurrency(value: int):
     """
     Decorator to prevent an async function from being called more than N times.
     """
-    semaphore = asyncio.Semaphore(value)
-    def _decorator(fn):
+    def _decorator(fn, __semaphore__: list = []):
         async def _wrapper(*args, **kwargs):
-            async with semaphore:
+            if len(__semaphore__) == 0:
+                loop = asyncio._get_running_loop()
+                __semaphore__.append(asyncio.Semaphore(value, loop=loop))
+
+            async with __semaphore__[0]:
                 return await fn(*args, **kwargs)
         _wrapper.__wrapped__ = fn
         return _wrapper
