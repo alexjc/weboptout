@@ -58,9 +58,9 @@ def cache_to_directory(directory, /, key: str, filter: callable = None):
     """
     Decorator to cache results of a function to individual pickle files on disk.
     """
-    directory = pkg_resources.resource_filename(__name__, directory)
-    directory = directory.replace('src/weboptout/', '')
-    os.makedirs(directory, exist_ok=True)
+    full_path = pkg_resources.resource_filename(__name__, directory)
+    full_path = full_path.replace('src/weboptout/', '')
+    os.makedirs(full_path, exist_ok=True)
 
     def _decorator(fn):        
         arg_names = list(inspect.signature(fn).parameters.keys())
@@ -71,10 +71,10 @@ def cache_to_directory(directory, /, key: str, filter: callable = None):
 
         async def _wrapper(*args, **kwargs):
             hex = hashlib.md5(args[arg_idx].encode()).hexdigest()
-            filename = f'{directory}/{hex}.pkl'
+            filename = f'{full_path}/{hex}.pkl'
             if os.path.isfile(filename):
                 result = pickle.load(open(filename, 'rb'))
-                if filter is None or not filter(*args, filename=filename, result=result):
+                if filter is None or not filter(*args, filename=f'{directory}/{hex}.pkl', result=result):
                     return result
 
             result = await fn(*args, **kwargs)
