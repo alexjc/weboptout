@@ -177,7 +177,7 @@ async def _fetch_from_browser_then_cache_result(url, headers):
 
     while not page_is_loading():
         await asyncio.sleep(0.01)
-    await asyncio.sleep(1.0)
+    await asyncio.sleep(2.0)
 
     html = webdriver.execute_script("return document.documentElement.outerHTML")
     headers["User-Agent"] = "WebOptOut/Firefox"

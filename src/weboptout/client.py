@@ -39,7 +39,7 @@ def instantiate_webdriver(__singleton__ = []):
     options.headless = True
     
     wdf = webdriver.Firefox(options=options)
-    wdf.set_page_load_timeout(5.0)
+    wdf.set_page_load_timeout(30.0)
     atexit.register(wdf.quit)
 
     __singleton__.append(wdf)
