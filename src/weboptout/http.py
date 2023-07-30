@@ -167,22 +167,23 @@ def _reject_if_header_missing(url, headers, /, filename, result):
 async def _fetch_from_browser_then_cache_result(url, headers):
     try:
         webdriver = instantiate_webdriver()
-        webdriver.get(url)
+        await webdriver.open_tab(url)
     except Exception as exc: # selenium.common.exceptions.TimeoutException
+        await webdriver.close_tab()
         if "Message: Navigation timed out after" not in str(exc):
             raise
         return url, headers, ""
 
-    def page_is_loading():            
-        x = webdriver.execute_script("return document.readyState")
-        return x == "complete"
-
-    while not page_is_loading():
-        await asyncio.sleep(0.01)
+    for i in range(100):
+        if not (await webdriver.is_page_loading(url)):
+            break
+        await asyncio.sleep(0.05)
     await asyncio.sleep(2.0)
 
-    html = webdriver.execute_script("return document.documentElement.outerHTML")
+    html = await webdriver.get_page_html()
     headers["User-Agent"] = "WebOptOut/Firefox"
+    await webdriver.close_tab()
+
     return url, headers, html
 
 
