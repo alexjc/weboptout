@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 
 from .types import Status
 from .config import RE_TDM_CONCEPTS, RE_LEGAL_WORDS, RE_NFP_CONCEPTS
+from .steps import Steps as S
 
 
 __all__ = ["check_tos_reservation"]
@@ -41,59 +42,52 @@ def check_tos_reservation(client, url: str, html: str) -> Status:
     soup = BeautifulSoup(html, "html.parser")
     text = "\n".join(_extract_paragraphs(soup))
 
-    para_count = text.count("\n") + 1
+    with client.setup_log() as report:
+        report(S.ExtractText, fail=len(text) < 500, bytes=len(text), paragraphs=text.count("\n")+1)
 
-    # Only english language is currently supported.
-    if len(text) > 1_000 and (lang := langdetect.detect(text)) != "en":
-        client.log(
-            Status.FAILURE,
-            f"Found a possible ToS page but language is '{lang.upper()}' at {url}",
+        # Only English language is currently supported.
+        lang = langdetect.detect(text)
+        report(S.ValidateTextLanguage, fail=bool(lang != "en"), lang=lang)
+        assert lang == 'en'
+
+        # Words that match data-mining concepts.
+        reasons = _find_matching_paragraphs(RE_TDM_CONCEPTS, text)
+        if len(reasons) > 0:
+            client._output.append((1234, reasons[0][1], reasons[0][2]))
+
+        report(
+            S.ExtractParagraphs,
+            succeed=len(reasons) > 0,
+            type="Text- and Data-Mining",
+            paragraphs=len(reasons),
         )
+
+        # Words that match not-for-profit reservations.
+        reasons = _find_matching_paragraphs(RE_NFP_CONCEPTS, text)
+        if len(reasons) > 0:
+            client._output.append((5678, reasons[0][1], reasons[0][2]))
+
+        report(
+            S.ExtractParagraphs,
+            succeed=len(reasons) > 0,
+            type="Not-For-Profit",
+            paragraphs=len(reasons),
+        )
+
+        report(S.ExtractText, fail=len(text) < 2_000)
+
+        legal_words = RE_LEGAL_WORDS.findall(text)
+        report(S.ValidateLegalText, fail=len(legal_words) < 36)
+
+    if client._steps[-1][0:2] == (S.ValidateTextLanguage, Status.FAILURE):
         return Status.ABORT
 
-    # Words that match data-mining concepts.
-    if len(reasons := _find_matching_paragraphs(RE_TDM_CONCEPTS, text)):
-        client.log(
-            Status.SUCCESS,
-            f"Found a total of {len(reasons)} matching paragraphs out of "
-            f"{para_count} in Terms Of Service.",
-            highlight=reasons[0][1],
-            paragraph=reasons[0][2],
-        )
-        return Status.SUCCESS
-
-    # Words that match not-for-profit reservations.
-    if len(reasons := _find_matching_paragraphs(RE_NFP_CONCEPTS, text)):
-        client.log(
-            Status.SUCCESS,
-            f"Found total of {len(reasons)} paragraphs matching "
-            f"non-commercial activities in Terms Of Service.",
-            highlight=reasons[0][1],
-        )
-        return Status.SUCCESS
-
-    if (size := len(text)) < 2_000:
-        client.log(
-            Status.FAILURE,
-            f"Too little information extracted, only {size:,} bytes from "
-            f"the ToS page at {url}",
-        )
-
-        # Suggest fetching page again via HTTP with Selenium.
+    if client._steps[-1][0:2] == (S.ExtractText, Status.FAILURE):
         return Status.RETRY
 
-    if len(RE_LEGAL_WORDS.findall(text)) < 36:
-        client.log(
-            Status.FAILURE,
-            f"The ToS page does not appear to contain a legal text at {url}",
-        )
-        return Status.FAILURE
-
-    client.log(
-        Status.FAILURE,
-        f"No direct matches found in {para_count} paragraphs found at {url}",
-    )
-    return Status.ABORT
+    assert len(client._steps) > 0
+    assert report.status is not None
+    return report.status
 
 
 def _extract_paragraphs(soup):
@@ -106,7 +100,7 @@ def _extract_paragraphs(soup):
     for para in soup.find_all(["p", "li", "ol", "ul", "span"]):
         if para.find_parent("a") or para.find_parent(["header", "footer"]):
             continue
-        if para.name == "span" and para.find_parent('p'):
+        if para.name == "span" and para.find_parent("p"):
             continue
         if para.name in ("ol", "ul") and len(para.find_all()) > 0:
             continue
