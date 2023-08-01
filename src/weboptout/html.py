@@ -44,7 +44,7 @@ def check_tos_reservation(client, url: str, html: str) -> Status:
         soup = BeautifulSoup(html, "html.parser")
 
     with client.setup_log() as report:
-        report(S.ParsePage, fail=len(w) > 0, url=url, *{'html': html, 'warnings': w} if len(w) > 0 else {})
+        report(S.ParsePage, fail=len(w) > 0, url=url, **{'html': html, 'warnings': w} if len(w) > 0 else {})
 
         text = "\n".join(_extract_paragraphs(soup))
 

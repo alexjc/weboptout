@@ -11,13 +11,13 @@ class Steps(Enum):
     CheckErrorCode = "checking HTTP response code"
     ValidateContentLength = "validate the length of the content"
     ValidateContentFormat = "validate the format of the content"
+    ValidateContentEncoding = "validate encoding of content"
     ValidateContentLanguage = "validating the language of the content"
 
     # HTML
     RetrievePage = "retrieving the page via HTTP"
     ParsePage = "parsing page as HTML"
     ValidatePageLanguage = "validating the language of HTML page"
-    ValidatePageContent = "validating the content of HTML page"
     ValidatePageLinks = "validating the links within the HTML page"
     FindPageLinks = "finding the links within the HTML page"
     FindSomeLinksToTerms = "finding links to ToS pages"

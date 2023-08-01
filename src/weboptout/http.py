@@ -47,7 +47,7 @@ async def _fetch_from_cache_or_network(client, url: str) -> tuple:
                 try:
                     html = await response.text()
                 except UnicodeDecodeError as exc:
-                    report(S.ValidateContentFormat, fail=True, exception=exc)
+                    report(S.ValidateContentEncoding, fail=True, exception=exc)
 
                 report(S.ValidateContentLength, fail=len(html) == 0, bytes=len(html))
 
@@ -87,7 +87,7 @@ async def _find_tos_links_from_html(client, url, html: str) -> list[str]:
     
     with client.setup_log() as report:
         links = []
-        report(S.ParsePage, fail=len(w) > 0, url=url, *{'html': html, 'warnings': w} if len(w) > 0 else {})
+        report(S.ParsePage, fail=len(w) > 0, url=url, **{'html': html, 'warnings': w} if len(w) > 0 else {})
 
         all_links = [
             l
@@ -98,10 +98,10 @@ async def _find_tos_links_from_html(client, url, html: str) -> list[str]:
             and not (l.get_text().lower in ["refresh", "reload"])
         ]
 
-        report(S.ValidatePageLinks, fail=bool(len(all_links) == 0))
-        report(
-            S.ValidatePageContent,
-            fail=any(k in html for k in ("turn on javascript", "enable-javascript.com"))
+        report(S.ValidatePageLinks,
+               fail=bool(len(all_links) == 0),
+               filtered_count=len(all_links),
+               original_count=len(soup.find_all("a")),
         )
 
         match_links, match_texts = [], []
