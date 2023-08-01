@@ -31,6 +31,7 @@ RE_TDM_CONCEPTS = [
 RE_NFP_CONCEPTS = [
     re.compile(p, re.I) for p in [
         "(non-commercial|non commercial) (use|purpose)",
+        "(any )?commercial use [\w\s]+is (strictly )?(prohibited|forbidden)",
         "not\s*(meant|intended)?\s*for commercial (use|usage)",
         "not-for-profit",
         "(personal|private) (use|purpose)",
