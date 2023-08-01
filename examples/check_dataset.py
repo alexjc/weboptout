@@ -17,10 +17,10 @@ async def _check_single_domain(lock, domain):
         return domain, res
 
 
-async def main(top_k=100, n_tasks=1):
+async def main(top_k=1000, n_tasks=8):
     # Load list of domains from one or more datasets summaries.
     domains = collections.defaultdict(int)
-    for filename in ['data/laion2B-en.tsv']:
+    for filename in ['data/laion2B-en.tsv', 'data/laion2B-multi.tsv', 'data/laion1B-nolang.tsv']:
         for ln in open(filename, "r").readlines():
             url, count = ln.rstrip('\n').split('\t')
             domains[url] += int(count.split('.')[0].replace(',', ''))
@@ -46,21 +46,22 @@ async def main(top_k=100, n_tasks=1):
         if res == rsv.YES: optout += v
         if res == rsv.ERROR: failed += v
 
-        for record in res.records:
+        for record in res.process:
             print(
                 " ", "\033[92m✓\033[0m" if record[0] == Status.SUCCESS else "\033[91m𐄂\033[0m",
-                record[1],
-                list(record[2].keys())
+                record[1].value,
+                dict(record[2])
             )
 
-        if res == rsv.YES and res.summary:
-            summary = textwrap.wrap(res.summary, width=72, initial_indent='   ❝', subsequent_indent='     ')
+        if res == rsv.YES:
+            summary = textwrap.wrap(res.outcome[0][1], width=72, initial_indent='   ❝', subsequent_indent='     ')
             print("\n", "\n".join(summary) + "❞")
         print()
 
     total -= failed
     print("TOTAL", f"{optout:,}", "opted-out from ", f"{total:,}.", f"(UNAVAILABLE {failed:,})")
- 
+    print(optout * 100 / total, '%')
+
 
 if __name__ == "__main__":
     asyncio.run(main())

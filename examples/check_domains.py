@@ -65,13 +65,13 @@ def main_synchronous_from_database():
         for record in res.records:
             print(
                 "\t", "\033[92m☑\033[0m" if record[0] == Status.SUCCESS else "\033[91m☒\033[0m",
-                record[1],
-                list(record[2].keys())
+                record[1].value,
+                dict(record[2]),
             )
 
         if res == rsv.YES:
-            summary = textwrap.wrap(res.summary, width=72, initial_indent='   〝', subsequent_indent='      ')
-            print("\n", "\n".join(summary) + "〞")
+            summary = textwrap.wrap(res.outcome[0][1], width=72, initial_indent='   ❝', subsequent_indent='     ')
+            print("\n", "\n".join(summary) + "❞")
         print()
 
 
