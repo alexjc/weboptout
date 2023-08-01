@@ -47,7 +47,7 @@ async def _fetch_from_cache_or_network(client, url: str) -> tuple:
                 try:
                     html = await response.text()
                 except UnicodeDecodeError as exc:
-                    report(S.ValidateContentEncoding, fail=True, exception=exc)
+                    report(S.ValidateContentEncoding, fail=True, exception=str(exc))
 
                 report(S.ValidateContentLength, fail=len(html) == 0, bytes=len(html))
 
@@ -55,15 +55,15 @@ async def _fetch_from_cache_or_network(client, url: str) -> tuple:
 
     except asyncio.exceptions.TimeoutError as exc:
         with client.setup_log() as report:
-            report(S.ResolveDomain, fail=True, exception=exc)
+            report(S.ResolveDomain, fail=True, exception=str(exc))
 
     except aiohttp.ClientError as exc:
         with client.setup_log() as report:
-            report(S.EstablishConnection, fail=True, exception=exc)
+            report(S.EstablishConnection, fail=True, exception=str(exc))
 
     except AssertionError as exc:
         with client.setup_log() as report:
-            report(S.EstablishConnection, fail=True, exception=exc)
+            report(S.EstablishConnection, fail=True, exception=str(exc))
 
     return url, {}, None
 
