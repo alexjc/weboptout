@@ -46,11 +46,8 @@ async def _fetch_from_cache_or_network(client, url: str) -> tuple:
 
                 try:
                     html = await response.text()
-                except UnicodeDecodeError:
-                    import traceback; import sys;
-                    print(response.headers, file=sys.stderr)
-                    traceback.print_exc(file=sys.stderr)
-                    sys.exit(-1)
+                except UnicodeDecodeError as exc:
+                    report(S.ValidateContentFormat, fail=True, exception=exc)
 
                 report(S.ValidateContentLength, fail=len(html) == 0, bytes=len(html))
 
@@ -90,7 +87,7 @@ async def _find_tos_links_from_html(client, url, html: str) -> list[str]:
     
     with client.setup_log() as report:
         links = []
-        report(S.ParsePage, fail=len(w) > 0, url=url, *{'html': html} if len(w) > 0 else {})
+        report(S.ParsePage, fail=len(w) > 0, url=url, *{'html': html, 'warnings': w} if len(w) > 0 else {})
 
         all_links = [
             l
