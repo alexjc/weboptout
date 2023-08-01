@@ -84,10 +84,10 @@ def check_tos_reservation(client, url: str, html: str) -> Status:
         legal_words = RE_LEGAL_WORDS.findall(text)
         report(S.ValidateLegalText, fail=len(legal_words) < 36)
 
-    if client._steps[-1][0:2] == (S.ValidateTextLanguage, Status.FAILURE):
+    if tuple(client._steps[-1][0:2]) == (Status.FAILURE, S.ValidateTextLanguage):
         return Status.ABORT
 
-    if client._steps[-1][0:2] == (S.ExtractText, Status.FAILURE):
+    if tuple(client._steps[-1][0:2]) == (Status.FAILURE, S.ExtractText):
         return Status.RETRY
 
     assert len(client._steps) > 0
