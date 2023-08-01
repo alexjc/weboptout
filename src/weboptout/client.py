@@ -5,11 +5,50 @@ import asyncio
 import aiohttp
 import collections
 import concurrent.futures
+from contextlib import contextmanager
 
 from . import __version__
+from .types import Status
 
 
-LogRecord = collections.namedtuple("LogRecord", ["level", "message", "extras"])
+__all__ = ["ClientSession", "instantiate_webdriver"]
+
+
+class PassThrough(Exception):
+    def __init__(self, status, step):
+        self.status = status
+        self.step = step
+
+
+LogRecord = collections.namedtuple("LogRecord", ["status", "step", "context"])
+
+
+class Log:
+    """
+    Context decorator for logging a step of the analysis.
+    """
+
+    def __init__(self, log):
+        self.status = Status.ABORT
+        self._log = log
+
+    def __call__(self, step,
+        # Active codes which force the scope to exit after logging.
+        succeed: bool = None, fail: bool = None,
+        # Passive codes which record the log and don't exit.
+        success: bool = None, failure: bool = None,
+        # Extra information to be attached to the log record.
+        **context
+    ):
+        status = Status.SUCCESS if (succeed is True or success is True or fail is False or failure is False) else Status.FAILURE
+        self._log.append(LogRecord(status, step, context))
+        if succeed is True:
+            self.status = Status.SUCCESS
+            raise PassThrough(Status.SUCCESS, step)
+        if fail is True:
+            self.status = Status.FAILURE
+            raise PassThrough(Status.FAILURE, step)
+
 
 
 class ClientSession(aiohttp.ClientSession):
@@ -23,11 +62,20 @@ class ClientSession(aiohttp.ClientSession):
     def __init__(self):
         timeout = aiohttp.ClientTimeout(connect=5.0, total=10.0)
         super().__init__(timeout=timeout, headers=self.DEFAULT_HEADERS)
-        self.log_records = []
+        self._steps = []
+        self._output = []
 
-    def log(self, level, message, **kwargs):
-        self.log_records.append(LogRecord(level, message, kwargs))
-
+    @contextmanager
+    def setup_log(self):
+        log = Log(self._steps)
+        try:
+            yield log
+        except PassThrough as exc:
+            assert log.status == exc.status
+            assert len(self._steps) > 0
+            return True
+        finally:
+            pass
 
 
 class WebDriverAsyncWrapper:
@@ -66,8 +114,8 @@ def instantiate_webdriver(__singleton__ = []):
 
     from selenium import webdriver
     options = webdriver.FirefoxOptions()
-    # options.headless = True
-    
+    options.headless = True
+
     wdf = webdriver.Firefox(options=options)
     wdf.set_page_load_timeout(30.0)
     atexit.register(wdf.quit)
