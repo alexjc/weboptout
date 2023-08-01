@@ -20,7 +20,7 @@ __all__ = ["search_tos_for_domain"]
 
 def _log_cache_hit(client, url, /, filename, result):
     with client.setup_log() as report:
-        report(S.RetrieveContent, succeed=bool(result[-1] not in ("", None)), cache=filename)
+        report(S.RetrieveContent, succeed=bool(result[-1] not in ("", None)), cache=filename, url=url)
 
 
 @cache_to_directory("cache/www", key="url", filter=_log_cache_hit)
@@ -36,7 +36,7 @@ async def _fetch_from_cache_or_network(client, url: str) -> tuple:
                 report(S.ResolveDomain, success=True, domain=response.url.host)
                 report(S.EstablishConnection, success=True, address=response.connection.transport.get_extra_info('peername') if response.connection else '')
 
-                report(S.RetrieveContent, success=bool(response.status == 200), status_code=response.status)
+                report(S.RetrieveContent, success=bool(response.status == 200), status_code=response.status, url=url)
 
                 report(
                     S.ValidateContentFormat,
