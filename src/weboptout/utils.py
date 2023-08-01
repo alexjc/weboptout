@@ -177,7 +177,7 @@ def retrieve_result_from_cache(archive, /, key: str, filter: callable = None):
 
     if os.path.isfile(archive):
         lookup = {
-            k: Reservation(v[0], v[1], v[2])
+            k: Reservation(v[0], v[1], v[2], v[3])
             for k, v in pickle.load(open(archive, 'rb')).items()
         }
     else:
@@ -203,7 +203,7 @@ def retrieve_result_from_cache(archive, /, key: str, filter: callable = None):
 
     def _dump_to_disk():
         pickle.dump(
-            {k: (v._id, v.summary, v.url) for k, v in lookup.items()},
+            {k: (v._id, v.url, v.process, v.outcome) for k, v in lookup.items()},
             open(archive, 'wb')
         )
     atexit.register(_dump_to_disk)

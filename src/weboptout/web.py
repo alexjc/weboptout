@@ -11,7 +11,7 @@ __all__ = ["check_domain_reservation"]
 
 
 @allow_sync_calls
-@retrieve_result_from_cache("cache/rsv.pkl", key="domain")
+# @retrieve_result_from_cache("cache/rsv.pkl", key="domain")
 async def check_domain_reservation(domain: str) -> Reservation:
     assert not any(domain.startswith(k) for k in ("https://", "http://"))
 
@@ -19,7 +19,7 @@ async def check_domain_reservation(domain: str) -> Reservation:
         async for url, tos, options in search_tos_for_domain(client, domain):
             # No TOS found but at least the server worked.
             if tos == "":
-                return rsv.MAYBE(summary=None, url=url, records=client.log_records)
+                return rsv.MAYBE(url=url, process=client._steps, outcome=client._output)
 
             status = check_tos_reservation(client, url, tos)
 
@@ -30,17 +30,13 @@ async def check_domain_reservation(domain: str) -> Reservation:
 
             # Wrong place or wrong language from website...
             if status == Status.ABORT:
-                return rsv.MAYBE(summary=None, url=url, records=client.log_records)
+                return rsv.MAYBE(url=url, process=client._steps, outcome=client._output)
 
             # Not enough text or not enough legal content.
             if status == Status.FAILURE:
                 continue
 
-            return rsv.YES(
-                summary=client.log_records[-1][2]["highlight"],
-                url=url,
-                records=client.log_records,
-            )
+            return rsv.YES(url=url, process=client._steps, outcome=client._output)
 
     # This happens when none of the domains can be looked up.
-    return rsv.ERROR(summary=None, records=client.log_records)
+    return rsv.ERROR(url=None, process=client._steps, outcome=client._output)
