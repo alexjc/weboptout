@@ -2,17 +2,18 @@
 
 import asyncio
 import aiohttp
+import warnings
 import itertools
 from dataclasses import dataclass
 from urllib.parse import urljoin
 
 from bs4 import BeautifulSoup
 
-from .types import Status
 from .config import RE_HREF_TOS, RE_TEXT_TOS
 from .utils import cache_to_directory, retrieve_from_database, limit_concurrency
 from .client import instantiate_webdriver
 from .steps import Steps as S
+
 
 __all__ = ["search_tos_for_domain"]
 
@@ -84,19 +85,22 @@ async def _find_tos_links_from_url(client, url: str) -> list[str]:
 
 
 async def _find_tos_links_from_html(client, url, html: str) -> list[str]:
-    soup = BeautifulSoup(html, "html.parser")
-
-    all_links = [
-        l
-        for l in soup.find_all("a")
-        if l.get("href") is not None
-        and not (href := l.get("href")).lower().startswith("javascript:")
-        and not any(href.startswith(k) for k in "#?")
-        and not (l.get_text().lower in ["refresh", "reload"])
-    ]
-
-    links = []
+    with warnings.catch_warnings(record=True) as w:
+        soup = BeautifulSoup(html, "html.parser")
+    
     with client.setup_log() as report:
+        links = []
+        report(S.ParsePage, fail=len(w) > 0, url=url, *{'html': html} if len(w) > 0 else {})
+
+        all_links = [
+            l
+            for l in soup.find_all("a")
+            if l.get("href") is not None
+            and not (href := l.get("href")).lower().startswith("javascript:")
+            and not any(href.startswith(k) for k in "#?")
+            and not (l.get_text().lower in ["refresh", "reload"])
+        ]
+
         report(S.ValidatePageLinks, fail=bool(len(all_links) == 0))
         report(
             S.ValidatePageContent,
@@ -178,7 +182,7 @@ class RequestOptions:
     retry: bool = False
 
 
-async def search_tos_for_domain(client, domain: str) -> str:
+async def search_tos_for_domain(client, domain: str, attempts: int = 4) -> str:
     assert not any(domain.startswith(k) for k in ("https://", "http://"))
 
     # Step 1) find the right domain from the domain.
@@ -203,7 +207,7 @@ async def search_tos_for_domain(client, domain: str) -> str:
 
     # Step 2) find the right page on that domain, maximum four tries.
     visited = set()
-    while len(links) > 0:
+    while len(links) > 0 and len(visited) < attempts:
         url = links.pop(0)
         visited.add(url)
 

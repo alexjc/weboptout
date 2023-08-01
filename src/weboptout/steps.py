@@ -15,8 +15,9 @@ class Steps(Enum):
 
     # HTML
     RetrievePage = "retrieving the page via HTTP"
-    ValidatePageLanguage = "validating the language of the HTML page"
-    ValidatePageContent = "validating the content of the HTML page"
+    ParsePage = "parsing page as HTML"
+    ValidatePageLanguage = "validating the language of HTML page"
+    ValidatePageContent = "validating the content of HTML page"
     ValidatePageLinks = "validating the links within the HTML page"
     FindPageLinks = "finding the links within the HTML page"
     FindSomeLinksToTerms = "finding links to ToS pages"

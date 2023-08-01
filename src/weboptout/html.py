@@ -1,6 +1,7 @@
 ## Copyright © 2023, Alex J. Champandard.  Licensed under MIT; see LICENSE! ⚘
 
 import re
+import warnings
 import langdetect
 from bs4 import BeautifulSoup
 
@@ -39,10 +40,14 @@ def _find_matching_paragraphs(patterns: list, text: str) -> list[tuple]:
 
 
 def check_tos_reservation(client, url: str, html: str) -> Status:
-    soup = BeautifulSoup(html, "html.parser")
-    text = "\n".join(_extract_paragraphs(soup))
+    with warnings.catch_warnings(record=True) as w:
+        soup = BeautifulSoup(html, "html.parser")
 
     with client.setup_log() as report:
+        report(S.ParsePage, fail=len(w) > 0, url=url, *{'html': html} if len(w) > 0 else {})
+
+        text = "\n".join(_extract_paragraphs(soup))
+
         report(S.ExtractText, fail=len(text) < 500, bytes=len(text), paragraphs=text.count("\n")+1)
 
         # Only English language is currently supported.
