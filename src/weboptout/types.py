@@ -26,20 +26,21 @@ class Reservation:
     create Reservations derived from that default.
     """
 
-    def __init__(self, id: int, summary: str = None, url: str = None, records: list = None):
+    def __init__(self, id: int, url: str = None, process: list = None, outcome: list = None):
         self._id = id
-        self.summary = summary
+
         self.url = url
-        self.records = records or []
+        self.process = process or []
+        self.outcome = outcome or []
 
     def __eq__(self, id: int):
         return self._id == id
 
     def __repr__(self):
-        return f'<weboptout.Reservation id={self._id} url="{self.url}" summary="{self.summary}">'
+        return f'<weboptout.Reservation id={self._id}>'
 
-    def __call__(self, /, summary: str, url: str = None, records: list = None):
-        return Reservation(self._id, summary, url, records)
+    def __call__(self, /, url: str, process: list = None, outcome: list = None):
+        return Reservation(self._id, url, process, outcome)
 
 
 class rsv:
