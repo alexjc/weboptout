@@ -16,12 +16,16 @@ include = [
     "data/tos.jsonl",
 ]
 
+[tool.poetry.scripts]
+weboptout = "weboptout.__main__:main"
+
 [tool.poetry.dependencies]
 python = ">=3.9"
 aiohttp = ">=3.8"
 langdetect = ">=1.0.9"
 beautifulsoup4 = ">=4.12"
 selenium = { version = ">=4.7", optional = true }
+click = "^8.1.7"
 
 [tool.poetry.extras]
 webdriver = ["selenium"]
