@@ -14,6 +14,7 @@ DOMAINS = {
     'facebook.com':     rsv.YES,
     'twitter.com':      rsv.YES,
     'youtube.com':      rsv.YES,
+    'medium.com':       rsv.YES,
 
     """Stock Photos""": None,
     'photoshelter.com': rsv.YES,
@@ -22,6 +23,7 @@ DOMAINS = {
     'gettyimages.com':  rsv.YES,
     'shutterstock.com': rsv.YES,
     'alamy.com':        rsv.YES,
+    'bigstockphoto.com':rsv.YES,
 
     """Art Platform""": None,
     'artstation.com':   rsv.YES,
@@ -62,11 +64,11 @@ def main_synchronous_from_database():
         else:
             print(f"  {domain:24}?")
 
-        for record in res.records:
+        for record in res.process:
             print(
-                "\t", "\033[92m☑\033[0m" if record[0] == Status.SUCCESS else "\033[91m☒\033[0m",
+                " ", "\033[92m✓\033[0m" if record[0] == Status.SUCCESS else "\033[91m𐄂\033[0m",
                 record[1].value,
-                dict(record[2]),
+                dict(record[2])
             )
 
         if res == rsv.YES:
