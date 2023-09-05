@@ -1,9 +1,9 @@
 Web Opt-Out
 ===========
 
-A tool and library written in Python to check the Copyright information of online works and the conditions under which they can be accessed.  See the `examples` folder to get started.
+A tool and library written in Python to check the Copyright information of online works and the conditions under which they can be accessed.  See the `#/examples/` folder to get started.  The source code is available in this repository and there are packaged releases available from PyPI that include verified databases. Requires Python 3.9+!
 
-The source code is available in this repository and there are packaged releases available from PyPI that include verified databases. Requires Python 3.9+!
+**NOTE**: The initial prototype of this `weboptout` tool was built in `a few hours <https://twitter.com/alexjc/status/1679456502719864832>`_.  If you want to comply with Copyright regulations worldwide and respect the conditions set by rightsholders on their platform of choice, you can easily do so without this library.  There's no excuse!
 
 Usage
 -----
