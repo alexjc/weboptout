@@ -3,4 +3,4 @@
 __version__ = "dev"
 
 from .types import rsv, Reservation, Status
-from .web import check_domain_reservation
+from .web import check_domain_reservation, check_url_reservation

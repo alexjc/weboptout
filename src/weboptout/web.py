@@ -1,8 +1,10 @@
 ## Copyright © 2023, Alex J. Champandard.  Licensed under MIT; see LICENSE! ⚘
 
+from urllib.parse import urlparse
+
 from .types import rsv, Reservation, Status
 from .client import ClientSession
-from .utils import allow_sync_calls, retrieve_result_from_cache
+from .utils import allow_sync_calls
 from .http import search_tos_for_domain
 from .html import check_tos_reservation
 
@@ -11,7 +13,6 @@ __all__ = ["check_domain_reservation"]
 
 
 @allow_sync_calls
-# @retrieve_result_from_cache("cache/rsv.pkl", key="domain")
 async def check_domain_reservation(domain: str) -> Reservation:
     assert not any(domain.startswith(k) for k in ("https://", "http://"))
 
@@ -40,3 +41,8 @@ async def check_domain_reservation(domain: str) -> Reservation:
 
     # This happens when none of the domains can be looked up.
     return rsv.ERROR(url=None, process=client._steps, outcome=client._output)
+
+
+def check_url_reservation(url: str) -> Reservation:
+    domain = urlparse(url).netloc
+    return check_domain_reservation(domain)
