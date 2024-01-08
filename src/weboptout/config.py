@@ -21,7 +21,7 @@ RE_TDM_CONCEPTS = [
         "(scrap(e|er|ing)|data[\s-]min(e|ing))",
         "(spider|robot|crawl(ing|er)?)",
         "(automated|automatic) (software|tool|mean|system|way|device)s?",
-        "(image library|machine learning|deep leaning|populate a database)",
+        "(image library|machine learning|deep leaning|populate a database|unapproved automation)",
         "(extract|compil(e|at)?|collect)(ing|ion)? (data|content|material|information)",
         "harvest(ing|er)?",
     ]
