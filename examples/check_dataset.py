@@ -37,12 +37,19 @@ async def main(top_k=1000, n_tasks=8):
 
     print("Domain Name                         Opt-Out              Images\n")
     optout, failed = 0, 0
+    total = 0
     for i, (k, v) in enumerate(domains):
         res = result[k]
+
+        if any('lang' in record.context and record.context['lang'] != 'en' for record in res.process):
+            continue
+        if all('lang' not in record.context for record in res.process):
+            continue
 
         domain, res_name = f"{i+1}) {k}", rsv.get_name(res)
         print(f"{domain:36}{res_name:^8}       {v:12,}")
 
+        total += v
         if res == rsv.YES: optout += v
         if res == rsv.ERROR: failed += v
 
